@@ -48,44 +48,53 @@ enum {
 	Tok_Count,
 };
 
+
+#if COMPILER_MSVC
+// WHYYY, JUST WHYY MICROSOFT!!!!!!!!!
+# define _string_macro(x)  { .len = cast(usize) sizeof(x) - 1, .str = cast(u8 *) x }
+#else
+# define _string_macro(x) S(x)
+#endif
+
 global const String8
 TOKEN_STRING[Tok_Count] = {
-	[Tok_Eof]      = S(""),
-	[Tok_Error]    = S(""),
-	[Tok_Newline]  = S("\\n"),
+	[Tok_Eof]      = _string_macro(""),
+	[Tok_Error]    = _string_macro(""),
+	[Tok_Newline]  = _string_macro("\\n"),
 
-	[Tok_Integral] = S(""),
-	[Tok_Decimal]  = S(""),
-	[Tok_Ident]    = S(""),
+	[Tok_Integral] = _string_macro(""),
+	[Tok_Decimal]  = _string_macro(""),
+	[Tok_Ident]    = _string_macro(""),
 
-	[Tok_Plus]     = S("+"), 
-	[Tok_Minus]    = S("-"),
-	[Tok_Star]     = S("*"),
-	[Tok_Slash]    = S("/"),
+	[Tok_Plus]     = _string_macro("+"), 
+	[Tok_Minus]    = _string_macro("-"),
+	[Tok_Star]     = _string_macro("*"),
+	[Tok_Slash]    = _string_macro("/"),
 
-	[Tok_Eq]       = S("="),
-	[Tok_Pipe]     = S("|"),
+	[Tok_Eq]       = _string_macro("="),
+	[Tok_Pipe]     = _string_macro("|"),
 
-	[Tok_Colon]    = S(":"),
-	[Tok_SemiColon]= S(";"),
-	[Tok_LParen]   = S("("),  
-	[Tok_RParen]   = S(")"),  
-	[Tok_LBracket] = S("["),
-	[Tok_RBracket] = S("]"),
-	[Tok_LBraces]  = S("{"),
-	[Tok_RBraces]  = S("}"),
-	[Tok_LAngle]   = S("<"),
-	[Tok_RAngle]   = S(">"),
-	[Tok_Dot]      = S("."),
-	[Tok_Comma]    = S(","),
-	[Tok_And]      = S("&"),
+	[Tok_Colon]    = _string_macro(":"),
+	[Tok_SemiColon]= _string_macro(";"),
+	[Tok_LParen]   = _string_macro("("),  
+	[Tok_RParen]   = _string_macro(")"),  
+	[Tok_LBracket] = _string_macro("["),
+	[Tok_RBracket] = _string_macro("]"),
+	[Tok_LBraces]  = _string_macro("{"),
+	[Tok_RBraces]  = _string_macro("}"),
+	[Tok_LAngle]   = _string_macro("<"),
+	[Tok_RAngle]   = _string_macro(">"),
+	[Tok_Dot]      = _string_macro("."),
+	[Tok_Comma]    = _string_macro(","),
+	[Tok_And]      = _string_macro("&"),
 
-	[Tok_Quote]      = S("\'"),
-	[Tok_DQuote]     = S("\""),
+	[Tok_Quote]      = _string_macro("\'"),
+	[Tok_DQuote]     = _string_macro("\""),
 
-	[Tok_Keyword_Fn]  = S("fn"),
-	[Tok_Keyword_Ret] = S("return"),
+	[Tok_Keyword_Fn]  = _string_macro("fn"),
+	[Tok_Keyword_Ret] = _string_macro("return"),
 };
+#undef _string_macro
 
 typedef struct {
 	Token_Kind kind;
