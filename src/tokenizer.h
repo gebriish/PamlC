@@ -38,7 +38,6 @@ enum {
 
 	Tok_Dot,      // .
 	Tok_Comma,    // ,
-	
 
 	// keywords
 
@@ -58,38 +57,38 @@ enum {
 
 global const String8
 TOKEN_STRING[Tok_Count] = {
-	[Tok_Eof]      = _string_macro(""),
-	[Tok_Error]    = _string_macro(""),
-	[Tok_Newline]  = _string_macro("\\n"),
+	[Tok_Eof]         = _string_macro(""),
+	[Tok_Error]       = _string_macro(""),
+	[Tok_Newline]     = _string_macro("\\n"),
 
-	[Tok_Integral] = _string_macro(""),
-	[Tok_Decimal]  = _string_macro(""),
-	[Tok_Ident]    = _string_macro(""),
+	[Tok_Integral]    = _string_macro(""),
+	[Tok_Decimal]     = _string_macro(""),
+	[Tok_Ident]       = _string_macro(""),
 
-	[Tok_Plus]     = _string_macro("+"), 
-	[Tok_Minus]    = _string_macro("-"),
-	[Tok_Star]     = _string_macro("*"),
-	[Tok_Slash]    = _string_macro("/"),
+	[Tok_Plus]        = _string_macro("+"), 
+	[Tok_Minus]       = _string_macro("-"),
+	[Tok_Star]        = _string_macro("*"),
+	[Tok_Slash]       = _string_macro("/"),
 
-	[Tok_Eq]       = _string_macro("="),
-	[Tok_Pipe]     = _string_macro("|"),
+	[Tok_Eq]          = _string_macro("="),
+	[Tok_Pipe]        = _string_macro("|"),
 
-	[Tok_Colon]    = _string_macro(":"),
-	[Tok_SemiColon]= _string_macro(";"),
-	[Tok_LParen]   = _string_macro("("),  
-	[Tok_RParen]   = _string_macro(")"),  
-	[Tok_LBracket] = _string_macro("["),
-	[Tok_RBracket] = _string_macro("]"),
-	[Tok_LBraces]  = _string_macro("{"),
-	[Tok_RBraces]  = _string_macro("}"),
-	[Tok_LAngle]   = _string_macro("<"),
-	[Tok_RAngle]   = _string_macro(">"),
-	[Tok_Dot]      = _string_macro("."),
-	[Tok_Comma]    = _string_macro(","),
-	[Tok_And]      = _string_macro("&"),
+	[Tok_Colon]       = _string_macro(":"),
+	[Tok_SemiColon]   = _string_macro(";"),
+	[Tok_LParen]      = _string_macro("("),  
+	[Tok_RParen]      = _string_macro(")"),  
+	[Tok_LBracket]    = _string_macro("["),
+	[Tok_RBracket]    = _string_macro("]"),
+	[Tok_LBraces]     = _string_macro("{"),
+	[Tok_RBraces]     = _string_macro("}"),
+	[Tok_LAngle]      = _string_macro("<"),
+	[Tok_RAngle]      = _string_macro(">"),
+	[Tok_Dot]         = _string_macro("."),
+	[Tok_Comma]       = _string_macro(","),
+	[Tok_And]         = _string_macro("&"),
 
-	[Tok_Quote]      = _string_macro("\'"),
-	[Tok_DQuote]     = _string_macro("\""),
+	[Tok_Quote]       = _string_macro("\'"),
+	[Tok_DQuote]      = _string_macro("\""),
 
 	[Tok_Keyword_Fn]  = _string_macro("fn"),
 	[Tok_Keyword_Ret] = _string_macro("return"),

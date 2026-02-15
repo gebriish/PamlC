@@ -21,4 +21,3 @@ cl ^
     %src%
 
 endlocal
-

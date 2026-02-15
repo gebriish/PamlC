@@ -361,7 +361,6 @@ _arena_realloc_aligned(Arena *arena, void *ptr, usize old_size, usize new_size, 
 		}
 
 		arena->pos = new_pos;
-		printf(" old alloc itself\n ");
 		return ptr;
 	}
 

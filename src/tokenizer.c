@@ -188,26 +188,25 @@ tok_next_token(Tokenizer *tok)
 
 	Token token = {0};
 	switch (c) {
-		case '+': token = (Token){ .kind = Tok_Plus }; break;
-		case '-': token = (Token){ .kind = Tok_Minus }; break;
-		case '*': token = (Token){ .kind = Tok_Star }; break;
-		case '/': token = (Token){ .kind = Tok_Slash }; break;
-		case '(': token = (Token){ .kind = Tok_LParen }; break;
-		case ')': token = (Token){ .kind = Tok_RParen }; break;
-		case '{': token = (Token){ .kind = Tok_LBraces }; break;
-		case '}': token = (Token){ .kind = Tok_RBraces }; break;
-		case '[': token = (Token){ .kind = Tok_LBracket }; break;
-		case ']': token = (Token){ .kind = Tok_RBracket }; break;
-		case '=': token = (Token){ .kind = Tok_Eq }; break;
-		case ':': token = (Token){ .kind = Tok_Colon }; break;
-		case ';': token = (Token){ .kind = Tok_SemiColon }; break;
-		case '.': token = (Token){ .kind = Tok_Dot }; break;
-		case ',': token = (Token){ .kind = Tok_Comma }; break;
-		case '|': token = (Token){ .kind = Tok_Pipe }; break;
-		case '<': token = (Token){ .kind = Tok_LAngle }; break;
-		case '>': token = (Token){ .kind = Tok_RAngle }; break;
-		case '&': token = (Token){ .kind = Tok_And }; break;
-
+		case '+' : token = (Token){ .kind = Tok_Plus }; break;
+		case '-' : token = (Token){ .kind = Tok_Minus }; break;
+		case '*' : token = (Token){ .kind = Tok_Star }; break;
+		case '/' : token = (Token){ .kind = Tok_Slash }; break;
+		case '(' : token = (Token){ .kind = Tok_LParen }; break;
+		case ')' : token = (Token){ .kind = Tok_RParen }; break;
+		case '{' : token = (Token){ .kind = Tok_LBraces }; break;
+		case '}' : token = (Token){ .kind = Tok_RBraces }; break;
+		case '[' : token = (Token){ .kind = Tok_LBracket }; break;
+		case ']' : token = (Token){ .kind = Tok_RBracket }; break;
+		case '=' : token = (Token){ .kind = Tok_Eq }; break;
+		case ':' : token = (Token){ .kind = Tok_Colon }; break;
+		case ';' : token = (Token){ .kind = Tok_SemiColon }; break;
+		case '.' : token = (Token){ .kind = Tok_Dot }; break;
+		case ',' : token = (Token){ .kind = Tok_Comma }; break;
+		case '|' : token = (Token){ .kind = Tok_Pipe }; break;
+		case '<' : token = (Token){ .kind = Tok_LAngle }; break;
+		case '>' : token = (Token){ .kind = Tok_RAngle }; break;
+		case '&' : token = (Token){ .kind = Tok_And }; break;
 		case '\'': token = (Token){ .kind = Tok_Quote }; break;
 		case '\"': token = (Token){ .kind = Tok_DQuote }; break;
 		case '\n': token = (Token){ .kind = Tok_Newline }; break;
@@ -242,22 +241,24 @@ token_list_append(Token_List *list, Token token)
 {
 	if (list->len >= list->capacity) {
 		Alloc_Error err = 0;
+		usize new_capacity = list->capacity == 0 ? 32 : list->capacity * 2;
+		
 		list->array = mem_resize(
 			list->alloc, 
 			list->array, 
-			list->capacity, 
-			list->capacity == 0 ? 32 : list->capacity * 2,
+			list->capacity * sizeof(Token), 
+			new_capacity * sizeof(Token),
 			false,
 			&err
 		);
+		
 		if (err) { 
 			printf("error(%d)\n", err);
 			return err; 
-		} else {
-			printf("error(%d)\n", err);
 		}
+		
+		list->capacity = new_capacity;
 	}
-
 
 	list->array[list->len] = token;
 	list->len += 1;

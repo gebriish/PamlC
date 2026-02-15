@@ -6,10 +6,16 @@
 
 #define PAMLC_VERSION "debug_build"
 
+
+typedef struct {
+	String8 out;
+} Build_Config;
+
+
 internal void
-print_usage(void)
+print_usage()
 {
-	fprintf(stderr,
+	fprintf(stdout,
 		"PamlC - PAML Compiler\n"
 		"\tbuild           : Compiles the first paml file of a project into executable.\n"
 		"\t                  Must provide the source file as next argument.\n"
@@ -19,27 +25,13 @@ print_usage(void)
 	);
 }
 
-internal String8
-args_get_output_name(String8_List args)
-{
-	for (usize i=2; i<args.size; ++i) {
-		String8 arg = args.array[i];
-		if (str8_equal(arg, S("-o"))) {
-			if (i + 1 >= args.size) { return S(""); }
-			return args.array[i + 1];
-		}
-	} 
-
-	return S("");
-}
-
 internal Token_List
 tokenize_source_file(String8 file_source, Allocator arena)
 {
 	Tokenizer tok;
 	tok_init(&tok, file_source);
 
-	Token_List tok_list = token_list(arena, 16);
+	Token_List tok_list = token_list(arena, 32);
 
 	for (;;) {
 		Token t = tok_next_token(&tok);
@@ -48,11 +40,6 @@ tokenize_source_file(String8 file_source, Allocator arena)
 	}
 	
 	return tok_list;
-}
-
-internal void
-error(const char *fmt, ...) {
-
 }
 
 int main(int argc, const char **argv)
@@ -80,36 +67,52 @@ int main(int argc, const char **argv)
 		}
 	}
 
-	if (str8_equal(cmd, S("build"))) {
+	if (str8_equal(cmd, S("build"))) { 
+
+		if (args.size < 3) {
+			fprintf(stderr, "error: no input file provided\n");
+			print_usage();
+			return 1;
+		}
+	
+		Build_Config build_cfg = {0};
+
+		for (usize i = 2; i < args.size; ++i) {
+			String8 arg = args.array[i];
+
+			switch (arg.len) {
+				case 2:
+					if (str8_equal(arg, S("-o"))) {
+						if (i + 1 >= args.size) {
+							fprintf(stderr, "error: output name not specified\n");
+							return 1;
+						}
+
+						build_cfg.out = args.array[i + 1];
+					}
+			}
+		}
+
 		//////////////////////////////////////////
 		// ~geb: Main Compiler Flow
 
 		OS_Time_Stamp begin = os_time_now();
 
-		if (args.size < 3) {
-			fprintf(stderr, "error: no input file provided\n");
-			return 1;
-		}
 
 		String8 file_path = args.array[2];
 		String8 file_ext  = str8_file_extension(file_path);
 
 		if (!str8_equal(file_ext, S("paml"))) {
-			fprintf(stderr, "error: invalid file type '"STR"'\n", s_fmt(file_ext));
+			fprintf(stdout, "error: invalid file type '"STR"'\n", s_fmt(file_ext));
 			return 1;
-		}
-
-		String8 out_name  = args_get_output_name(args);
-		if (!out_name.len) {
-			out_name = str8_file_name(file_path);
 		}
 
 		String8 src = os_data_from_path(file_path, arena, arena);
 
 		if (src.len == 0) {
-			fprintf(stderr,
-				"error: file '"STR"' empty or missing.\n",
-				s_fmt(file_path));
+			fprintf(stdout,
+		   "error: file '"STR"' empty or missing.\n",
+		   s_fmt(file_path));
 			return 1;
 		}
 
@@ -138,9 +141,9 @@ int main(int argc, const char **argv)
 		//////////////////////////////////////////
 	}
 
-	fprintf(stderr,
+	fprintf(stdout,
 		"error: unknown command '"STR"'\n",
 		s_fmt(cmd));
-	fprintf(stderr, "hint: use 'pamlc help'\n");
+	fprintf(stdout, "hint: use 'pamlc help'\n");
 	return 1;
 }

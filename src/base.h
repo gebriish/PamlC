@@ -500,18 +500,18 @@ global const u8 UTF8_LEN_TABLE[256] = {
 #define STR "%.*s"
 #define s_fmt(s) cast(int) s.len, cast(char *)s.str
 
-internal String8 str8_make(const char *cstring, Allocator allocator);
+internal String8     str8_make(const char *cstring, Allocator allocator);
 internal Alloc_Error str8_delete(String8 *str);
 
 internal isize find_left(String8 str, rune c);
 internal isize find_right(String8 str, rune c);
 
 internal String8_List str8_make_list(const char **cstrings, usize count, Allocator allocator);
-internal Alloc_Error str8_delete_list(String8_List *list);
-internal String8     str8_list_index(String8_List *list, usize i);
+internal Alloc_Error  str8_delete_list(String8_List *list);
+internal String8      str8_list_index(String8_List *list, usize i);
 
 internal String8 str8_slice(String8 string, usize begin, usize end_exclusive);
-internal bool str8_equal(String8 first, String8 second);
+internal bool    str8_equal(String8 first, String8 second);
 internal String8 str8_copy(String8 string, Allocator alloc);
 internal String8 str8_copy_cstring(String8 string, Allocator alloc);
 
@@ -540,8 +540,6 @@ internal rune utf8_decode(u8 *ptr, UTF8_Error *err);
 internal bool is_letter(rune r);
 internal bool is_digit(rune r);
 internal bool is_space(rune r);
-
-
 
 ///////////////////////////////////
 // ~geb: OS layer

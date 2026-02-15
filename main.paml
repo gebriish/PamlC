@@ -1,7 +1,12 @@
-add := fn(a, b: int) int {
-	return a + b
+
+Thing := rect {
+	index: u32,
+	generation: u32,
+}
+
+Thing_Data := rec {
+	
 }
 
 main := fn() {
-
 }
