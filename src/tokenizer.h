@@ -11,6 +11,7 @@ enum {
 
 	Tok_Integral,
 	Tok_Decimal,
+	Tok_String,
 	Tok_Ident,
 	
 	Tok_Plus,     // +
@@ -32,9 +33,6 @@ enum {
 	Tok_LBraces,  // {
 	Tok_RBraces,  // }
 	Tok_And,      // &
-	
-	Tok_Quote,    // '
-	Tok_DQuote,   // "
 
 	Tok_Dot,      // .
 	Tok_Comma,    // ,
@@ -87,9 +85,6 @@ TOKEN_STRING[Tok_Count] = {
 	[Tok_Comma]       = _string_macro(","),
 	[Tok_And]         = _string_macro("&"),
 
-	[Tok_Quote]       = _string_macro("\'"),
-	[Tok_DQuote]      = _string_macro("\""),
-
 	[Tok_Keyword_Fn]  = _string_macro("fn"),
 	[Tok_Keyword_Ret] = _string_macro("return"),
 };
@@ -105,19 +100,14 @@ typedef struct {
 	usize      row, col;
 } Token;
 
+
 typedef struct {
 	String8 src;
 	usize pos;
-
 	usize col, row;
 } Tokenizer;
 
-typedef struct {
-	Allocator alloc;
-	Token *array;
-	usize  len;
-	usize  capacity;
-} Token_List;
+typedef Dynamic_Array Token_List;
 
 internal bool tok_init(Tokenizer *tok, String8 src);
 
@@ -125,9 +115,6 @@ internal rune tok_peek(Tokenizer *tok);
 internal rune tok_next(Tokenizer *tok);
 
 internal Token tok_next_token(Tokenizer *tok);
-
-internal Token_List  token_list(Allocator alloc, usize initial_capacity);
-internal Alloc_Error token_list_append(Token_List *list, Token token);
-internal void        token_list_clear(Token_List *list);
+internal Token_List tokenize_source(String8 source, Allocator arena);
 
 #endif

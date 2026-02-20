@@ -35,7 +35,6 @@ tok_init(Tokenizer *tok, String8 src)
 	return true;
 }
 
-
 internal rune
 tok_peek(Tokenizer *tok)
 {
@@ -174,6 +173,41 @@ tok_next_token(Tokenizer *tok)
 			return (Token){ .kind = Tok_Integral, .text = text, .int_value = int_part, .row = token_row, .col = token_col };
 	}
 
+	if (c == '"') {
+		isize str_start = tok->pos;
+
+		while (tok_peek(tok) != 0) {
+			if (tok_peek(tok) == '\\') {
+				tok_next(tok);
+				tok_next(tok);
+				continue;
+			}
+
+			if (tok_peek(tok) == '"') {
+				break;
+			}
+
+			tok_next(tok);
+		}
+
+		isize str_end = tok->pos;
+
+		if (tok_peek(tok) == '"') {
+			tok_next(tok);
+		} else {
+			// error: unterminated string
+		}
+
+		String8 lex = str8_slice(tok->src, str_start, str_end);
+
+		return (Token){
+			.kind = Tok_String,
+			.text = lex,
+			.row  = token_row,
+			.col  = token_col
+		};
+	}
+
 	if (is_letter(c)) {
 		while (is_letter(tok_peek(tok)) || is_digit(tok_peek(tok)))
 			tok_next(tok);
@@ -207,8 +241,6 @@ tok_next_token(Tokenizer *tok)
 		case '<' : token = (Token){ .kind = Tok_LAngle }; break;
 		case '>' : token = (Token){ .kind = Tok_RAngle }; break;
 		case '&' : token = (Token){ .kind = Tok_And }; break;
-		case '\'': token = (Token){ .kind = Tok_Quote }; break;
-		case '\"': token = (Token){ .kind = Tok_DQuote }; break;
 		case '\n': token = (Token){ .kind = Tok_Newline }; break;
 	}
 	if (token.kind != 0) {
@@ -222,55 +254,39 @@ tok_next_token(Tokenizer *tok)
 
 
 internal Token_List
-token_list(Allocator alloc, usize initial_capacity)
+tokenize_source(String8 source, Allocator arena)
 {
-	Token_List list = {0};
+    Tokenizer tok;
+    tok_init(&tok, source);
 
-	list.alloc = alloc;
-	Alloc_Error error = 0;
+    Token_List tok_list = dynamic_array(arena, Token, 32);
 
-	list.array = alloc_array(alloc, Token, initial_capacity, &error); Assert(error == Alloc_Err_None);
-	list.len = 0;
-	list.capacity = initial_capacity;
+    bool first_token = true;
+    bool prev_was_newline = false;
 
-	return list;
+    for (;;) {
+        Token t = tok_next_token(&tok);
+        if (t.kind == Tok_Eof) break;
+
+        if (t.kind == Tok_Newline) {
+            if (first_token) continue;
+            if (prev_was_newline) continue;
+            prev_was_newline = true;
+        } else {
+            prev_was_newline = false;
+        }
+
+        first_token = false;
+        dynamic_array_append(&tok_list, Token, t);
+    }
+
+    return tok_list;
 }
 
-internal Alloc_Error
-token_list_append(Token_List *list, Token token)
-{
-	if (list->len >= list->capacity) {
-		Alloc_Error err = 0;
-		usize new_capacity = list->capacity == 0 ? 32 : list->capacity * 2;
-		
-		list->array = mem_resize(
-			list->alloc, 
-			list->array, 
-			list->capacity * sizeof(Token), 
-			new_capacity * sizeof(Token),
-			false,
-			&err
-		);
-		
-		if (err) { 
-			printf("error(%d)\n", err);
-			return err; 
-		}
-		
-		list->capacity = new_capacity;
-	}
 
-	list->array[list->len] = token;
-	list->len += 1;
 
-	return Alloc_Err_None;
-}
 
-internal void
-token_list_clear(Token_List *list)
-{
-	list->len = 0;
-}
+
 
 
 

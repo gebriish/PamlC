@@ -29,6 +29,30 @@ os_linx_time_from_timespec(struct timespec in)
 
 ///////////////////////
 
+internal OS_Handle
+os_stdout()
+{
+	OS_Handle h = {0};
+	h.u64[0] = cast(u64) STDOUT_FILENO;
+	return h;
+}
+
+internal OS_Handle
+os_stdin()
+{
+	OS_Handle h = {0};
+	h.u64[0] = cast(u64) STDIN_FILENO;
+	return h;
+}
+
+internal OS_Handle
+os_stderr()
+{
+	OS_Handle h = {0};
+	h.u64[0] = cast(u64) STDERR_FILENO;
+	return h;
+}
+
 internal void *
 os_reserve(usize size)
 {
@@ -118,7 +142,7 @@ os_file_open(OS_AccesFlags flags, String8 path, Allocator temp_alloc)
 		handle.u64[0] = fd;
 	}
 
-	str8_delete(&path_copy);
+	str8_delete(temp_alloc, &path_copy);
 	return handle;
 }
 

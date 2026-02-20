@@ -1,12 +1,7 @@
-
-Thing := rect {
-	index: u32,
-	generation: u32,
-}
-
-Thing_Data := rec {
-	
+add := fn(a: int, b: int) int {
+	return a + b
 }
 
 main := fn() {
 }
+

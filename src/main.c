@@ -1,11 +1,12 @@
 #include "base.h"
 #include "base.c"
 
+#include <stdio.h>
 #include "tokenizer.h"
 #include "tokenizer.c"
 
-#define PAMLC_VERSION "debug_build"
 
+#define PAMLC_VERSION "debug_build"
 
 typedef struct {
 	String8 out;
@@ -25,37 +26,20 @@ print_usage()
 	);
 }
 
-internal Token_List
-tokenize_source_file(String8 file_source, Allocator arena)
-{
-	Tokenizer tok;
-	tok_init(&tok, file_source);
-
-	Token_List tok_list = token_list(arena, 32);
-
-	for (;;) {
-		Token t = tok_next_token(&tok);
-		if (t.kind == Tok_Eof) { break; }
-		token_list_append(&tok_list, t);
-	}
-	
-	return tok_list;
-}
-
 int main(int argc, const char **argv)
 {
 	Allocator arena   = arena_allocator(Mb(512));
 
 	String8_List args = str8_make_list(argv, cast(usize)argc, arena);
 
-	if (args.size < 2) {
+	if (args.len < 2) {
 		print_usage();
 		return 1;
 	}
 
-	String8 cmd = args.array[1];
+	String8 cmd = str8_list_index(&args, 1);
 
-	if (args.size == 2) {
+	if (args.len == 2) {
 		if (str8_equal(cmd, S("version")) || str8_equal(cmd, S("-v"))) {
 			printf("PamlC - Paml Compiler version %s\n", PAMLC_VERSION);
 			return 0;
@@ -69,7 +53,7 @@ int main(int argc, const char **argv)
 
 	if (str8_equal(cmd, S("build"))) { 
 
-		if (args.size < 3) {
+		if (args.len < 3) {
 			fprintf(stderr, "error: no input file provided\n");
 			print_usage();
 			return 1;
@@ -77,18 +61,18 @@ int main(int argc, const char **argv)
 	
 		Build_Config build_cfg = {0};
 
-		for (usize i = 2; i < args.size; ++i) {
-			String8 arg = args.array[i];
+		for (usize i = 2; i < args.len; ++i) {
+			String8 arg = str8_list_index(&args, i);
 
 			switch (arg.len) {
 				case 2:
 					if (str8_equal(arg, S("-o"))) {
-						if (i + 1 >= args.size) {
+						if (i + 1 >= args.len) {
 							fprintf(stderr, "error: output name not specified\n");
 							return 1;
 						}
 
-						build_cfg.out = args.array[i + 1];
+						build_cfg.out = str8_list_index(&args, i + 1);
 					}
 			}
 		}
@@ -98,8 +82,7 @@ int main(int argc, const char **argv)
 
 		OS_Time_Stamp begin = os_time_now();
 
-
-		String8 file_path = args.array[2];
+		String8 file_path = str8_list_index(&args, 2);
 		String8 file_ext  = str8_file_extension(file_path);
 
 		if (!str8_equal(file_ext, S("paml"))) {
@@ -116,10 +99,11 @@ int main(int argc, const char **argv)
 			return 1;
 		}
 
-		Token_List tokens = tokenize_source_file(src, arena);
+		Token_List tokens = tokenize_source(src, arena);
 
+		Token *token_array = cast(Token *) tokens.data;
 		for (usize i=0; i<tokens.len; ++i) {
-			Token token = tokens.array[i];
+			Token token = token_array[i];
 
 			if (token.kind == Tok_Newline) {
 				printf("\n"); continue;
@@ -130,7 +114,7 @@ int main(int argc, const char **argv)
 				lexeme = TOKEN_STRING[token.kind];
 			}
 
-			printf(STR " ", s_fmt(lexeme));
+			printf("\'" STR "\' ", s_fmt(lexeme));
 		}
 
 		OS_Time_Duration delta = os_time_diff(begin, os_time_now());

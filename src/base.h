@@ -160,7 +160,6 @@
 #endif
 
 #include <stdint.h>
-#include <stdio.h>
 
 typedef uint8_t   u8;
 typedef  int8_t   i8;
@@ -450,6 +449,39 @@ internal Allocator heap_allocator(void);
 internal Allocator arena_allocator(usize reserve);
 
 ///////////////////////////////////
+// ~geb: Dynamic Array
+
+typedef struct {
+	Allocator alloc;
+	void *data;
+	usize len;
+	usize capacity;
+} Dynamic_Array;
+
+#define dynamic_array(_alloc, T, _capacity) \
+	(Dynamic_Array){ \
+		.alloc    = (_alloc), \
+		.data     = (_capacity) ? \
+			mem_alloc_aligned((_alloc), sizeof(T) * (_capacity), AlignOf(T), true, NULL) \
+			: NULL, \
+		.len      = 0, \
+		.capacity = (_capacity), \
+	}
+
+#define dynamic_array_append(arr, T, value) \
+	do { \
+		if ((arr)->len == (arr)->capacity) { \
+			if (!dynamic_array_reserve((arr), sizeof(T), AlignOf(T), (arr)->len + 1)) \
+				break; \
+		} \
+		((T *)(arr)->data)[(arr)->len++] = (value); \
+	} while (0)
+
+internal void dynamic_array_delete(Dynamic_Array *arr);
+internal bool dynamic_array_reserve(Dynamic_Array *arr, usize elem_size, usize elem_align, usize min_capacity);
+internal void dynamic_array_clear(Dynamic_Array *arr);
+
+///////////////////////////////////
 // ~geb: String type ( UTF8 )
 // for simplicity it is best to use
 // arena allocators for strings
@@ -462,16 +494,11 @@ internal Allocator arena_allocator(usize reserve);
 #define MAX_LATIN1       0x00ff     // Maximum Latin-1 value
 
 typedef struct {
-	Allocator alloc;
 	usize len;
 	u8 *str;
 } String8;
 
-typedef struct {
-	Allocator alloc;
-	String8 *array;
-	usize size;
-} String8_List;
+typedef Dynamic_Array String8_List;
 
 global const u8 UTF8_LEN_TABLE[256] = {
 	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // 0x00–0x0F
@@ -501,7 +528,7 @@ global const u8 UTF8_LEN_TABLE[256] = {
 #define s_fmt(s) cast(int) s.len, cast(char *)s.str
 
 internal String8     str8_make(const char *cstring, Allocator allocator);
-internal Alloc_Error str8_delete(String8 *str);
+internal Alloc_Error str8_delete(Allocator alloc, String8 *str);
 
 internal isize find_left(String8 str, rune c);
 internal isize find_right(String8 str, rune c);
@@ -586,6 +613,10 @@ typedef struct OS_FileProps {
 	OS_Time_Stamp modified;
 } OS_FileProps;
 
+internal OS_Handle    os_stdout();
+internal OS_Handle    os_stdin();
+internal OS_Handle    os_stderr();
+
 internal OS_Handle    os_file_open(OS_AccesFlags flags, String8 path, Allocator temp_alloc);
 internal void         os_file_close(OS_Handle file);
 internal usize        os_file_read(OS_Handle file, usize begin, usize end, void *out_data);
@@ -608,5 +639,13 @@ internal OS_Time_Stamp    os_time_now();
 internal OS_Time_Stamp    os_time_frequency();
 internal void             os_sleep_ns(u64 ns);
 internal OS_Time_Duration os_time_diff(OS_Time_Stamp start, OS_Time_Stamp end);
+
+///////////////////////////////////
+// ~geb: Logging
+
+internal void log_debug(const char* fmt, ...);
+internal void log_info (const char* fmt, ...);
+internal void log_warn (const char* fmt, ...);
+internal void log_error(const char* fmt, ...);
 
 #endif
