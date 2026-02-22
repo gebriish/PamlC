@@ -214,8 +214,9 @@ tok_next_token(Tokenizer *tok)
 
 		String8 lex = str8_slice(tok->src, start, tok->pos);
 
-		if (str8_equal(lex, S("fn")))     return (Token){ .kind = Tok_Keyword_Fn, .row = token_row, .col = token_col };
+		if (str8_equal(lex, S("fn")))     return (Token){ .kind = Tok_Keyword_Fn,  .row = token_row, .col = token_col };
 		if (str8_equal(lex, S("return"))) return (Token){ .kind = Tok_Keyword_Ret, .row = token_row, .col = token_col };
+		if (str8_equal(lex, S("var")))    return (Token){ .kind = Tok_Keyword_Var, .row = token_row, .col = token_col };
 
 		return (Token){ .kind = Tok_Ident, .text = lex, .row = token_row, .col = token_col };
 	}
@@ -277,17 +278,8 @@ tokenize_source(String8 source, Allocator arena)
         }
 
         first_token = false;
-        dynamic_array_append(&tok_list, Token, t);
+        dyn_arr_append(&tok_list, Token, t);
     }
 
     return tok_list;
 }
-
-
-
-
-
-
-
-
-

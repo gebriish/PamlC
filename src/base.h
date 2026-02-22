@@ -468,7 +468,7 @@ typedef struct {
 		.capacity = (_capacity), \
 	}
 
-#define dynamic_array_append(arr, T, value) \
+#define dyn_arr_append(arr, T, value) \
 	do { \
 		if ((arr)->len == (arr)->capacity) { \
 			if (!dynamic_array_reserve((arr), sizeof(T), AlignOf(T), (arr)->len + 1)) \
@@ -476,6 +476,10 @@ typedef struct {
 		} \
 		((T *)(arr)->data)[(arr)->len++] = (value); \
 	} while (0)
+
+#define dyn_arr_index(arr, T, i)                         \
+    (Assert((i) < (arr)->len),                           \
+     ((T*)(arr)->data)[(i)])
 
 internal void dynamic_array_delete(Dynamic_Array *arr);
 internal bool dynamic_array_reserve(Dynamic_Array *arr, usize elem_size, usize elem_align, usize min_capacity);
@@ -578,13 +582,9 @@ internal void  os_decommit(void *ptr, usize size);
 internal void  os_release(void *ptr, usize size);
 
 // ~geb: file handling
-typedef union OS_Handle {
-	u64 u64[1];
-	u32 u32[2];
-	u16 u16[4];
-} OS_Handle;
+typedef i32 OS_Handle;
 
-typedef u32 OS_AccesFlags;
+typedef u32 OS_AccessFlags;
 enum {
   OS_AccessFlag_Read       = Bit(0),
   OS_AccessFlag_Write      = Bit(1),
@@ -617,14 +617,14 @@ internal OS_Handle    os_stdout();
 internal OS_Handle    os_stdin();
 internal OS_Handle    os_stderr();
 
-internal OS_Handle    os_file_open(OS_AccesFlags flags, String8 path, Allocator temp_alloc);
+internal OS_Handle    os_file_open(OS_AccessFlags flags, String8 path);
 internal void         os_file_close(OS_Handle file);
 internal usize        os_file_read(OS_Handle file, usize begin, usize end, void *out_data);
 internal usize        os_file_write(OS_Handle file, usize begin, usize end, void *data);
 internal OS_FileProps os_properties_from_file(OS_Handle file);
 
-internal String8      os_data_from_path(String8 path, Allocator alloc, Allocator scratch);
-internal bool         os_write_to_path(String8 path, String8 data, Allocator scratch);
+internal String8      os_data_from_path(String8 path, Allocator alloc);
+internal bool         os_write_to_path(String8 path, String8 data);
 
 // ~geb: time interface
 

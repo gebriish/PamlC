@@ -38,9 +38,10 @@ enum {
 	Tok_Comma,    // ,
 
 	// keywords
-
+	
 	Tok_Keyword_Fn,  // fn
 	Tok_Keyword_Ret, // return
+	Tok_Keyword_Var,
 
 	Tok_Count,
 };
@@ -87,6 +88,7 @@ TOKEN_STRING[Tok_Count] = {
 
 	[Tok_Keyword_Fn]  = _string_macro("fn"),
 	[Tok_Keyword_Ret] = _string_macro("return"),
+	[Tok_Keyword_Var] = _string_macro("var"),
 };
 #undef _string_macro
 

@@ -3,10 +3,21 @@
 
 #include "base.h"
 
-#define NODE_FIELDS
+typedef u32 Ast_Kind;
+enum {
+	Ast_Program,
+};
 
-typedef struct {
-	
-} Ast_File;
+typedef struct Ast_Node Ast_Node;
+struct Ast_Node {
+	Ast_Kind kind;	
+
+	Ast_Node *next;
+
+	union { // children
+		Ast_Node *decls;
+		Ast_Node *value;
+	};
+};
 
 #endif

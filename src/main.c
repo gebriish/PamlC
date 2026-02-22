@@ -1,9 +1,12 @@
 #include "base.h"
-#include "base.c"
-
-#include <stdio.h>
 #include "tokenizer.h"
+#include "ast.h"
+#include "parser.h"
+
+#include "base.c"
 #include "tokenizer.c"
+#include "parser.c"
+#include "ast.c"
 
 
 #define PAMLC_VERSION "debug_build"
@@ -62,7 +65,7 @@ int main(int argc, const char **argv)
 		Build_Config build_cfg = {0};
 
 		for (usize i = 2; i < args.len; ++i) {
-			String8 arg = str8_list_index(&args, i);
+			String8 arg = dyn_arr_index(&args, String8, i);
 
 			switch (arg.len) {
 				case 2:
@@ -90,7 +93,7 @@ int main(int argc, const char **argv)
 			return 1;
 		}
 
-		String8 src = os_data_from_path(file_path, arena, arena);
+		String8 src = os_data_from_path(file_path, arena);
 
 		if (src.len == 0) {
 			fprintf(stdout,
@@ -105,17 +108,14 @@ int main(int argc, const char **argv)
 		for (usize i=0; i<tokens.len; ++i) {
 			Token token = token_array[i];
 
-			if (token.kind == Tok_Newline) {
-				printf("\n"); continue;
-			}
-
 			String8 lexeme = token.text;
 			if (!lexeme.len) {
 				lexeme = TOKEN_STRING[token.kind];
 			}
 
-			printf("\'" STR "\' ", s_fmt(lexeme));
+			printf("\'" STR "\', ", s_fmt(lexeme));
 		}
+		printf("\n");
 
 		OS_Time_Duration delta = os_time_diff(begin, os_time_now());
 		printf("compile time : %f ms.\n", delta.milliseconds);
